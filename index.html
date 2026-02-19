@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>İftar</title>
+
+<style>
+:root{
+  --bg:#F2F3F7;
+  --card:rgba(255,255,255,.75);
+  --stroke:rgba(0,0,0,.06);
+  --text:#111;
+  --muted:#6E6E73;
+  --accent:#111;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.container{
+  width:min(420px,94vw);
+  padding:20px;
+}
+
+.card{
+  background:var(--card);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--stroke);
+  border-radius:28px;
+  padding:28px 22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.08);
+}
+
+.title{
+  font-size:14px;
+  letter-spacing:1.2px;
+  font-weight:600;
+  color:var(--muted);
+}
+
+.count{
+  font-size:46px;
+  font-weight:700;
+  margin:14px 0 6px;
+  font-variant-numeric:tabular-nums;
+}
+
+.target{
+  font-size:14px;
+  color:var(--muted);
+}
+
+.progress{
+  margin-top:18px;
+  height:6px;
+  background:#E5E5EA;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.bar{
+  height:100%;
+  width:0%;
+  background:var(--accent);
+  transition:width .4s ease;
+}
+
+.meta{
+  margin-top:22px;
+  font-size:13px;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+    <div class="title">İFTARA KALAN</div>
+    <div id="count" class="count">—</div>
+    <div id="target" class="target">—</div>
+
+    <div class="progress">
+      <div id="bar" class="bar"></div>
+    </div>
+
+    <div class="meta">
+      <div id="today">—</div>
+      <div id="now">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const IFTAR={
+"2026-02-19":"18:29","2026-02-20":"18:30","2026-02-21":"18:31","2026-02-22":"18:32",
+"2026-02-23":"18:33","2026-02-24":"18:34","2026-02-25":"18:35","2026-02-26":"18:36",
+"2026-02-27":"18:37","2026-02-28":"18:38","2026-03-01":"18:39","2026-03-02":"18:40",
+"2026-03-03":"18:41","2026-03-04":"18:42","2026-03-05":"18:43","2026-03-06":"18:44",
+"2026-03-07":"18:45","2026-03-08":"18:46","2026-03-09":"18:47","2026-03-10":"18:48",
+"2026-03-11":"18:49","2026-03-12":"18:50","2026-03-13":"18:50","2026-03-14":"18:51",
+"2026-03-15":"18:52","2026-03-16":"18:53","2026-03-17":"18:54","2026-03-18":"18:55",
+"2026-03-19":"18:56"
+};
+
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const keys=Object.keys(IFTAR).sort();
+
+function makeDate(k,t){
+ const [Y,M,D]=k.split("-").map(Number);
+ const [h,m]=t.split(":").map(Number);
+ return new Date(Y,M-1,D,h,m,0);
+}
+
+function nextIftar(now){
+ const tk=ymd(now);
+ if(IFTAR[tk]){
+   const t=makeDate(tk,IFTAR[tk]);
+   if(t>now) return t;
+ }
+ for(const k of keys){
+   const t=makeDate(k,IFTAR[k]);
+   if(t>now) return t;
+ }
+ return null;
+}
+
+function tick(){
+ const now=new Date();
+ document.getElementById("today").textContent=
+   now.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"});
+ document.getElementById("now").textContent=
+   `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+ const target=nextIftar(now);
+ if(!target){return;}
+
+ const diff=Math.floor((target-now)/1000);
+ const h=Math.floor(diff/3600);
+ const m=Math.floor((diff%3600)/60);
+ const s=diff%60;
+
+ document.getElementById("count").textContent=
+   `${h}s ${m}dk ${s}sn`;
+
+ document.getElementById("target").textContent=
+   target.toLocaleDateString("tr-TR",{day:"numeric",month:"long"})+
+   " • "+pad(target.getHours())+":"+pad(target.getMinutes());
+
+ const percent=Math.max(0,Math.min(100,((86400-diff)/86400)*100));
+ document.getElementById("bar").style.width=percent+"%";
+}
+
+tick();
+setInterval(tick,1000);
+</script>
+</body>
+</html>
