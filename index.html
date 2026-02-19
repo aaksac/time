@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+
+  <!-- PWA / iOS app-like -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="İftar">
+  <meta name="theme-color" content="#0B1020">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <title>İftar</title>
+
+  <style>
+    :root{
+      --bg1:#0B1020;
+      --bg2:#111C3F;
+      --bg3:#1B2A6A;
+      --card: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.16);
+      --text: rgba(255,255,255,.96);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.55);
+      --shadow: rgba(0,0,0,.35);
+      --barbg: rgba(255,255,255,.18);
+      --bar1: #9CC2FF;
+      --bar2: #7CFFB2;
+      --warn: #FFD27C;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      font-family: ui-rounded, -apple-system, BlinkMacSystemFont, "SF Pro Display","SF Pro Text", system-ui;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 15% 5%, rgba(156,194,255,.35), transparent 55%),
+        radial-gradient(900px 600px at 90% 15%, rgba(124,255,178,.22), transparent 55%),
+        radial-gradient(800px 520px at 55% 95%, rgba(255,210,124,.20), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+      overflow-x:hidden;
+    }
+
+    .safe{
+      min-height:100%;
+      padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .wrap{
+      width:min(440px, 96vw);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    /* Top header */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.07));
+      border:1px solid var(--stroke);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 18px 55px var(--shadow);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .logoDot{
+      width:10px; height:10px; border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--bar1));
+      box-shadow: 0 0 18px rgba(156,194,255,.55);
+      flex:0 0 auto;
+    }
+
+    .brandTitle{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:16px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .meta{
+      text-align:right;
+      font-size:12px;
+      color:var(--muted2);
+      line-height:1.25;
+      white-space:nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Card */
+    .card{
+      border-radius:26px;
+      padding:18px 18px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow:
+        0 22px 70px rgba(0,0,0,.38),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(520px 220px at 18% 0%, rgba(156,194,255,.20), transparent 60%),
+        radial-gradient(520px 220px at 88% 12%, rgba(124,255,178,.14), transparent 62%),
+        radial-gradient(520px 220px at 65% 110%, rgba(255,210,124,.12), transparent 62%);
+      pointer-events:none;
+    }
+
+    .label{
+      position:relative;
+      font-size:12px;
+      letter-spacing:1.2px;
+      font-weight:800;
+      color:var(--muted);
+    }
+
+    /* Responsive, iPhone 11 friendly big number */
+    .count{
+      position:relative;
+      margin:10px 0 8px;
+      font-size:clamp(32px, 7.2vw, 48px);
+      font-weight:950;
+      letter-spacing:-.8px;
+      line-height:1.05;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 12px 40px rgba(0,0,0,.35);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .target{
+      position:relative;
+      font-size:13px;
+      color:var(--muted2);
+    }
+
+    .row{
+      position:relative;
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:750;
+      font-variant-numeric: tabular-nums;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      white-space:nowrap;
+    }
+
+    .progressWrap{
+      position:relative;
+      margin-top:14px;
+      height:10px;
+      border-radius:999px;
+      background: var(--barbg);
+      border:1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+
+    .bar{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--bar1), var(--bar2));
+      box-shadow: 0 0 22px rgba(156,194,255,.22);
+      transition: width .45s ease;
+    }
+
+    .footer{
+      text-align:center;
+      font-size:12px;
+      color:rgba(255,255,255,.55);
+      line-height:1.35;
+      padding:0 6px;
+    }
+
+    .footer strong{ color: rgba(255,255,255,.78); }
+
+    /* Small phones */
+    @media (max-width: 360px){
+      .pill{padding:9px 10px}
+      .card{padding:16px 16px 14px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="safe">
+    <div class="wrap">
+
+      <div class="topbar">
+        <div class="brand">
+          <span class="logoDot"></span>
+          <div class="brandTitle">İftar</div>
+        </div>
+        <div class="meta">
+          <div id="today">—</div>
+          <div id="now">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">İFTARA KALAN</div>
+        <div id="count" class="count">—</div>
+        <div id="target" class="target">Hedef: —</div>
+
+        <div class="progressWrap" aria-label="İlerleme">
+          <div id="bar" class="bar"></div>
+        </div>
+
+        <div class="row">
+          <div id="status" class="pill">Durum: —</div>
+          <div id="nextkey" class="pill">Tarih: —</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        Tüm hakları saklıdır. © 2026 | Designed by <strong>Ali AKSAÇ</strong>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // İftar saatleri (YYYY-MM-DD -> HH:MM)
+  const IFTAR = {
+    "2026-02-19":"18:29","2026-02-20":"18:30","2026-02-21":"18:31","2026-02-22":"18:32",
+    "2026-02-23":"18:33","2026-02-24":"18:34","2026-02-25":"18:35","2026-02-26":"18:36",
+    "2026-02-27":"18:37","2026-02-28":"18:38","2026-03-01":"18:39","2026-03-02":"18:40",
+    "2026-03-03":"18:41","2026-03-04":"18:42","2026-03-05":"18:43","2026-03-06":"18:44",
+    "2026-03-07":"18:45","2026-03-08":"18:46","2026-03-09":"18:47","2026-03-10":"18:48",
+    "2026-03-11":"18:49","2026-03-12":"18:50","2026-03-13":"18:50","2026-03-14":"18:51",
+    "2026-03-15":"18:52","2026-03-16":"18:53","2026-03-17":"18:54","2026-03-18":"18:55",
+    "2026-03-19":"18:56"
+  };
+
+  const keysSorted = Object.keys(IFTAR).sort();
+
+  const pad2 = n => String(n).padStart(2,"0");
+  const ymd  = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+
+  function makeDate(key, timeHHMM){
+    const [Y,M,D] = key.split("-").map(Number);
+    const [h,m]   = timeHHMM.split(":").map(Number);
+    return new Date(Y, M-1, D, h, m, 0);
+  }
+
+  // şimdi’den sonraki en yakın iftarı bul
+  function nextIftar(now){
+    const tk = ymd(now);
+    if (IFTAR[tk]) {
+      const t = makeDate(tk, IFTAR[tk]);
+      if (t > now) return { target:t, key:tk };
+    }
+    for (const k of keysSorted){
+      const t = makeDate(k, IFTAR[k]);
+      if (t > now) return { target:t, key:k };
+    }
+    return null;
+  }
+
+  function prettyTarget(date){
+    const dateStr = date.toLocaleDateString("tr-TR", { day:"numeric", month:"long", year:"numeric", weekday:"long" });
+    const timeStr = `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+    return `${dateStr} • ${timeStr}`;
+  }
+
+  // ilerleme: 24 saat üzerinden (basit ve stabil)
+  function progressPercent(now, target){
+    const daySec = 24*3600;
+    const secToTarget = Math.max(0, Math.floor((target - now)/1000));
+    const passed = daySec - Math.min(daySec, secToTarget);
+    return Math.max(0, Math.min(100, Math.round((passed/daySec)*100)));
+  }
+
+  function tick(){
+    const now = new Date();
+
+    document.getElementById("today").textContent =
+      now.toLocaleDateString("tr-TR",{ weekday:"long", day:"numeric", month:"long" });
+
+    document.getElementById("now").textContent =
+      `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+
+    const info = nextIftar(now);
+
+    const countEl  = document.getElementById("count");
+    const targetEl = document.getElementById("target");
+    const statusEl = document.getElementById("status");
+    const keyEl    = document.getElementById("nextkey");
+    const barEl    = document.getElementById("bar");
+
+    if (!info){
+      countEl.textContent = "Takvim bitti";
+      targetEl.textContent = "Hedef: —";
+      statusEl.textContent = "Durum: —";
+      keyEl.textContent = "Tarih: —";
+      barEl.style.width = "0%";
+      return;
+    }
+
+    const target = info.target;
+    const diff = Math.max(0, Math.floor((target - now)/1000)); // saniye
+
+    const h = Math.floor(diff/3600);
+    const m = Math.floor((diff%3600)/60);
+    const s = diff%60;
+
+    countEl.textContent = `${h} saat ${m} dk ${s} sn`;
+    targetEl.textContent = `Hedef: ${prettyTarget(target)}`;
+    keyEl.textContent = `Tarih: ${info.key}`;
+
+    if (diff === 0) statusEl.textContent = "Durum: İftar vakti 🌙";
+    else if (diff <= 10*60) statusEl.textContent = "Durum: Son 10 dakika ⏳";
+    else statusEl.textContent = "Durum: Sayım devam ediyor";
+
+    barEl.style.width = progressPercent(now, target) + "%";
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  // Service worker (offline / app-like)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    });
+  }
+</script>
+</body>
+</html>
